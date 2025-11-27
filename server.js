@@ -6,7 +6,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -218,6 +218,6 @@ app.get('/data', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT,'0.0.0.0' ,() => {
     console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
 });
